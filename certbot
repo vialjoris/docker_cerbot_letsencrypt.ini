@@ -1,0 +1,30 @@
+#!/bin/bash
+cd $(dirname $0)
+if [ -r ../containers_configs/global/env.config ]; then
+  source ../containers_configs/global/env.config  
+  export ENVIRONMENT_EXECUTION=$ENVIRONMENT_EXECUTION;  
+
+  case $1 in
+    # build le container docker
+    install)
+      if [ "$(id -u)" != "0" ]; then
+        echo "SUDO make me a sandwich !"
+        exit 1
+      fi;
+      curl https://dl.eff.org/certbot-auto -o /usr/bin/certbot-auto
+      chmod a+x /usr/bin/certbot-auto      
+      certbot -n --version        
+    ;;
+    sign)
+      certbot certonly \
+      --non-interactive \
+      --agree-tos \
+      --config ../containers_configs/$ENVIRONMENT_EXECUTION/letsencrypt.ini \
+      --config-dir ../containers_data/letsencrypt-certificates-data \
+      --work-dir ../containers_data/letsencrypt-workdir \
+      --logs-dir ../containers_logs/letsencrypt        
+    ;;
+    renew)
+    ;;
+  esac
+fi
